@@ -1,0 +1,78 @@
+{
+    "name": "ui",
+    "baseURI": "http://localhost:9999/",
+    "condition": "${matches(request.uri.path, '^/openid/') or matches(request.uri.path, '^/admin/')}",
+    "heap" : [
+        {
+            "name": "capture",
+            "type": "CaptureDecorator",
+            "config": {
+                "captureEntity": true,
+                "captureContext": true
+            }
+        },
+        {
+            "name": "daClient",
+            "type": "ClientRegistration",
+            "config": {
+                "clientId": "daClient",
+                "clientSecret": "daClientSecret",
+                "registrationHandler": {
+                    "name": "debugHandler",
+                    "type": "ClientHandler",
+                    "capture": [
+                        "request",
+                        "response"
+                    ]
+                },
+                "tokenEndpointAuthMethod": "client_secret_post",
+                "issuer": {
+                    "type": "Issuer",
+                    "config": {
+                        "wellKnownEndpoint": "${env['OPENAM_INSTANCE']}/oauth2/.well-known/openid-configuration"
+                    }
+                },
+                "scopes": [
+                    "openid"
+                ]
+            }
+        }
+    ],
+    "handler": {
+        "type": "Chain",
+        "config": {
+            "filters": [
+                {
+                    "type": "OAuth2ClientFilter",
+                    "config": {
+                        "clientEndpoint": "/openid",
+                        "target": "${session.openid}",
+                        "failureHandler": {
+                            "type": "StaticResponseHandler",
+                            "config": {
+                                "status": 302,
+                                "headers": {
+                                    "Location": [ "/logout" ]
+                                }
+                            }
+                        },
+                        "registrations": [
+                            "daClient"
+                        ],
+                        "requireHttps": false
+                    }
+                },
+                {
+                     "type": "HeaderFilter",
+                     "config": {
+                         "messageType": "REQUEST",
+                         "add": {
+                             "x-claim-sub": [ "${session.openid.id_token_claims.sub}" ]
+                         }
+                     }
+                }
+            ],
+            "handler": "ClientHandler"
+        }
+    }
+}

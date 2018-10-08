@@ -1,0 +1,57 @@
+{
+    "name": "policyTree",
+    "condition": "${matches(request.uri.path, '^/policyTree/')}",
+    "heap": [
+        {
+            "name": "capture",
+            "type": "CaptureDecorator",
+            "config": {
+                "captureEntity": true,
+                "captureContext": true
+            }
+        },
+        {
+            "name": "debugHandler",
+            "type": "ClientHandler",
+            "capture": [
+                "request",
+                "response"
+            ]
+        },
+        {
+            "name": "authnFailureResponse",
+            "type": "StaticResponseHandler",
+            "config": {
+                "status": 401,
+                "headers": {
+                    "Content-Type": [ "application/json" ]
+                },
+                "entity": "{\"code\": 401, \"message\":\"Authentication Failed\"}"
+            }
+        }
+    ],
+    "handler": {
+        "name": "FetchPolicyTree",
+        "type": "ScriptableHandler",
+        "config": {
+            "clientHandler": "debugHandler",
+            "type": "application/x-groovy",
+            "file": "fetchPolicyTree.groovy",
+            "args": {
+                "resource": "http://localhost:9999/",
+                "openamUrl": "${env['OPENAM_INSTANCE']}",
+                "pepUsername": "daClient",
+                "pepPassword": "daClientSecret",
+                "pepRealm": "/",
+                "application": "delegated-admin",
+                "jwtTokenSubject": "${session.openid.id_token}",
+                "environment": {
+                    "securityContextPath": [
+                        "${session.idmUserDetails.authorization.component}/${session.idmUserDetails.authorization.id}"
+                    ]
+                },
+                "failureHandler": "authzFailureResponse"
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "metadata" : {
+    "realm" : "/",
+    "amsterVersion" : "6.5.0-M11",
+    "entityType" : "Policies",
+    "entityId" : "delegatedAdminQueryUsers",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "delegatedAdminQueryUsers",
+    "name" : "delegatedAdminQueryUsers",
+    "active" : true,
+    "description" : "",
+    "resources" : [ "*://*:*/openidm/managed/user?_queryFilter=*", "*://*:*/openidm/managed/user?*&_queryFilter=*" ],
+    "actionValues" : {
+      "GET" : true
+    },
+    "applicationName" : "delegated-admin",
+    "subject" : {
+        "type": "JwtClaim",
+        "claimName": "sub",
+        "claimValue": "user.0"
+    },
+    "resourceTypeUuid" : "76656a38-5f8e-401b-83aa-4ccb74ce88d2",
+    "resourceAttributes" : [ ]
+  }
+}

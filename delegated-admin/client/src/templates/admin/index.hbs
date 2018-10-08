@@ -1,0 +1,22 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Example OIDC RP with Policy</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+
+<body>
+  <p>Hello {{sub}}</p>
+  <script src="jquery-2.1.1-min.js"></script>
+  <script>
+  $(function () {
+      $.get("/openidm/managed/user?_queryFilter=true")
+  });
+  </script>
+</body>
+
+</html>

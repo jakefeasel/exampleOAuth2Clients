@@ -1,0 +1,107 @@
+{
+    "name": "openidm",
+    "baseURI": "http://localhost:9999/",
+    "condition": "${matches(request.uri.path, '^/openidm/.*')}",
+    "heap": [
+        {
+            "name": "capture",
+            "type": "CaptureDecorator",
+            "config": {
+                "captureEntity": true,
+                "captureContext": true
+            }
+        },
+        {
+            "name": "debugHandler",
+            "type": "ClientHandler",
+            "capture": [
+                "request",
+                "response"
+            ]
+        },
+        {
+            "name": "authnFailureResponse",
+            "type": "StaticResponseHandler",
+            "config": {
+                "status": 401,
+                "headers": {
+                    "Content-Type": [ "application/json" ]
+                },
+                "entity": "{\"code\": 401, \"message\":\"Authentication Failed\"}"
+            }
+        },
+        {
+            "name": "authzFailureResponse",
+            "type": "StaticResponseHandler",
+            "config": {
+                "status": 403,
+                "headers": {
+                    "Content-Type": [ "application/json" ]
+                },
+                "entity": "{\"code\": 403, \"message\":\"Access Denied\"}"
+            }
+        }
+    ],
+    "handler": {
+        "type": "Chain",
+        "config": {
+            "filters": [
+                {
+                  "type": "PolicyEnforcementFilter",
+                  "config": {
+                        "amService": {
+                            "type": "AmService",
+                            "config": {
+                                "url": "${env['OPENAM_INSTANCE']}",
+                                "amHandler": "debugHandler"
+                            }
+                        },
+                        "cache": {
+                            "enabled": false,
+                            "defaultTimeout": "1 hour",
+                            "maximumTimeToCache": "1 day"
+                        },
+                        "pepUsername": "daClient",
+                        "pepPassword": "daClientSecret",
+                        "pepRealm": "/",
+                        "application": "delegated-admin",
+                        "jwtSubject": "${session.openid.id_token}",
+                        "environment": { },
+                        "failureHandler": "authzFailureResponse"
+                    }
+                },
+                {
+                    "name": "ScopeValidation",
+                    "type": "ScriptableFilter",
+                    "config": {
+                        "type": "application/x-groovy",
+                        "file": "scopeValidation.groovy",
+                        "args": {
+                            "scopeResourceQueryFilter": "/organizationName eq \"\\${organizationName}\"",
+                            "scopingAttribute": "organizationName",
+                            "failureResponse": "${heap['authzFailureResponse']}"
+                        }
+                    }
+                },
+                {
+                    "type": "ConditionalFilter",
+                    "config": {
+                        "condition": "${matches(request.method, 'PATCH') and not empty contexts.policyDecision.attributes.allowedFields}",
+                        "delegate" : {
+                            "name": "CheckAllowedFieldsForPatch",
+                            "type": "ScriptableFilter",
+                            "config": {
+                                "type": "application/x-groovy",
+                                "file": "checkAllowedFieldsForPatch.groovy",
+                                "args": {
+                                    "failureResponse": "${heap['authzFailureResponse']}"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "handler": "debugHandler"
+        }
+    }
+}
