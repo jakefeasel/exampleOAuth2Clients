@@ -67,10 +67,10 @@ This script will add the hidden iframe to your document body. The iframe will th
 Use the [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) API to send and receive messages from the iframe regarding when the token states have changed. For example, consider this code (based on the example within [index.html](./index.html)):
 
     // handle various token-related events issued from the appAuthFrame as appropriate in the SPA context
-    // "appAuthLoaded" - the iframe is ready to start working. Send it a "login" message whenever you're ready to get tokens.
+    // "appAuthLoaded" - the iframe is ready to start working. Send it a "getTokens" message whenever you're ready to get tokens.
     // "tokensAvailable" - the access token and id token are now saved in sessionStorage
     // "tokensRenewed" - the access token and id token that were in sessionStorage have been replaced with updated tokens
-    // "tokensRemoved" - there are no longer tokens available (probably due to a logout event)
+    // "tokensRemoved" - there are no longer tokens available (probably due to a removeTokens message)
     window.addEventListener("message", function (e) {
         if (e.origin !== document.location.origin) {
             return;

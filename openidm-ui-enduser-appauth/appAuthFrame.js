@@ -13,7 +13,7 @@
     iframe.setAttribute("src", "appAuth.html" + window.location.hash);
     iframe.setAttribute("id", "appAuthFrame");
     iframe.setAttribute("style", "display:none");
-    document.getElementsByTagName("body")[0].appendChild(iframe);
+    document.documentElement.appendChild(iframe);
 
     // track xhr requests which have failed due to token expiration
     var pendingQueue = [];
