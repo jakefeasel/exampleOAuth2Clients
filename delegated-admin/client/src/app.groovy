@@ -7,6 +7,7 @@ import io.vertx.ext.web.templ.HandlebarsTemplateEngine
 import io.vertx.ext.web.handler.TemplateHandler
 
 import io.vertx.ext.auth.oauth2.OAuth2Auth
+import io.vertx.ext.auth.oauth2.OAuth2ClientOptions
 import io.vertx.ext.auth.oauth2.impl.OAuth2TokenImpl
 import io.vertx.ext.auth.oauth2.OAuth2FlowType
 
@@ -33,13 +34,16 @@ router.route().pathRegex("^/admin/.+").handler(StaticHandler.create())
 // In this case, the actual back-end logic we want to protect for this RP happens to be
 // proxied calls out to IDM, authenticated via a privileged OAuth2 token that we
 // obtain using the client credential flow.
-def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.CLIENT, [
-    site:"http://login.sample.svc.cluster.local:80",
-    tokenPath:"/oauth2/access_token",
-    clientID: "daClient",
-    clientSecret: "daClientSecret",
-    useBasicAuthorizationHeader: false
+OAuth2ClientOptions opts = new OAuth2ClientOptions([
+        site:"https://login.sample.svc.cluster.local",
+        tokenPath:"/oauth2/access_token",
+        clientID: "daClient",
+        clientSecret: "daClientSecret",
+        useBasicAuthorizationHeader: false
 ])
+// necessary to work with self-signed certificate in development; should not be used in production
+opts.setTrustAll(true)
+def authProvider = OAuth2Auth.create(vertx, OAuth2FlowType.CLIENT, opts)
 authProvider.authenticate([
     // This is a scope that ordinary users will not be able to request.
     scope: "user_admin"
@@ -77,7 +81,7 @@ router.route().pathRegex("^/openidm/.*")
 
                 token.fetch(
                     routingContext.request.method(),
-                    "http://rs-service.sample.svc.cluster.local${routingContext.normalisedPath()}?${routingContext.request.query()}",
+                    "https://rs-service.sample.svc.cluster.local${routingContext.normalisedPath()}?${routingContext.request.query()}",
                     headers,
                     payload,
                     { rsResponse ->
