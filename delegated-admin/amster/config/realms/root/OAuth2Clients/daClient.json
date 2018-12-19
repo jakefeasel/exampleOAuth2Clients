@@ -1,7 +1,7 @@
 {
   "metadata" : {
     "realm" : "/",
-    "amsterVersion" : "6.5.0-M11",
+    "amsterVersion" : "6.5.0",
     "entityType" : "OAuth2Clients",
     "entityId" : "daClient",
     "pathParams" : { }
@@ -24,7 +24,7 @@
       "jwkStoreCacheMissCacheTime" : 60000,
       "idTokenSignedResponseAlg" : "RS256",
       "idTokenPublicEncryptionKey" : null,
-      "jwksUri" : "https://login.sample.svc.cluster.local/oauth2/connect/jwk_uri",
+      "jwksUri" : "https://&{fqdn}/oauth2/connect/jwk_uri",
       "userinfoEncryptedResponseAlg" : null,
       "requestParameterSignedAlg" : null,
       "clientJwtPublicKey" : null

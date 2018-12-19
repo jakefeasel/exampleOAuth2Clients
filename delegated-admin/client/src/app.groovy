@@ -35,7 +35,7 @@ router.route().pathRegex("^/admin/.+").handler(StaticHandler.create())
 // proxied calls out to IDM, authenticated via a privileged OAuth2 token that we
 // obtain using the client credential flow.
 OAuth2ClientOptions opts = new OAuth2ClientOptions([
-        site:"https://login.sample.svc.cluster.local",
+        site:"https://login.sample.forgeops.com",
         tokenPath:"/oauth2/access_token",
         clientID: "daClient",
         clientSecret: "daClientSecret",
@@ -81,7 +81,7 @@ router.route().pathRegex("^/openidm/.*")
 
                 token.fetch(
                     routingContext.request.method(),
-                    "https://rs-service.sample.svc.cluster.local${routingContext.normalisedPath()}?${routingContext.request.query()}",
+                    "https://rs-service.sample.forgeops.com${routingContext.normalisedPath()}?${routingContext.request.query()}",
                     headers,
                     payload,
                     { rsResponse ->

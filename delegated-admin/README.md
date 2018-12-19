@@ -4,7 +4,7 @@
 
 ### Base Platform Environment
 
-Install and run the [Platform sample](https://github.com/ForgeRock/forgeops/tree/master/samples/fr-platform)
+Install and run the [Platform OAuth2 Sample](https://github.com/ForgeRock/forgeops-init/tree/master/6.5/oauth2)
 
 ### Import AM configuration for this sample
 
